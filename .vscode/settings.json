@@ -1,0 +1,8 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "./apps/service/Cargo.toml",
+    "./apps/service/migration/Cargo.toml"
+  ],
+  "rust-analyzer.showUnlinkedFileNotification": false,
+  "rust-analyzer.check.ignore": ["./apps/web/"]
+}
