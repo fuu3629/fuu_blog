@@ -1,5 +1,5 @@
 use crate::domain::auth::AuthDomain;
-use crate::team_blog::{Blog, Blogs, CreateUserRequest, LoginRequest, PostBlog, Token};
+use crate::team_blog::{Blog, Blogs, CreateUserRequest, LoginRequest, PostBlog, Tag, Token};
 use crate::{infrastructure::infrastructure::InfrastructureImpl, team_blog::Member};
 use bcrypt::verify;
 use tonic::{Request, Status};
@@ -24,12 +24,10 @@ impl UsecaseImpl {
         let hash_password = bcrypt::hash(request.password, 10).unwrap();
         match qiita_id {
             Some(qiita_id) => {
-                println!("{:?}", qiita_id);
                 let is_user = self
                     .infrastructure
                     .find_user_by_name(qiita_id.clone())
                     .await?;
-                println!("{:?}", is_user);
                 if !is_user {
                     return Err(Status::invalid_argument("qiita_id is not found"));
                 }
@@ -42,9 +40,10 @@ impl UsecaseImpl {
                         request.qiita_id,
                     )
                     .await?;
-                println!("{:?}", user_id);
-                let blogs = self.infrastructure.get_blog_by_user(vec![qiita_id]).await?;
-                println!("{:?}", blogs);
+                let blogs = self
+                    .infrastructure
+                    .fetch_blog_by_user(vec![qiita_id])
+                    .await?;
                 self.infrastructure.register_blog(user_id, blogs).await?;
                 _token = self.auth_domain.generate_token(user_id)?;
             }
@@ -90,22 +89,30 @@ impl UsecaseImpl {
         Ok(members)
     }
 
-    pub async fn get_blog_by_user(&self, ids: Vec<String>) -> Result<Blogs, Status> {
-        let res = self.infrastructure.get_blog_by_user(ids).await?;
-        let blogs: Blogs = Blogs {
+    pub async fn get_blog_by_user(&self, ids: Vec<i64>) -> Result<Blogs, Status> {
+        let res = self.infrastructure.get_blog_by_user_ids(ids).await?;
+        let mut blogs: Blogs = Blogs {
             blogs: res.into_iter().map(|item| Blog::from(item)).collect(),
         };
+        for blog in &mut blogs.blogs {
+            let tags = self.infrastructure.get_tags_by_blog_id(blog.id).await?;
+            blog.tags = tags.into_iter().map(|tag| Tag::from(tag)).collect();
+        }
         Ok(blogs)
     }
 
-    pub async fn get_blog_by_id(&self, id: String) -> Result<Blog, Status> {
-        let res = self.infrastructure.get_blog_by_id(id).await?;
-        Ok(Blog::from(res))
+    pub async fn get_blog_by_id(&self, id: i64) -> Result<Blog, Status> {
+        let blog = self.infrastructure.get_blog_by_id(id).await?;
+        let tags = self.infrastructure.get_tags_by_blog_id(blog.id).await?;
+        let mut res = Blog::from(blog);
+        res.tags = tags.into_iter().map(|tag| Tag::from(tag)).collect();
+        Ok(res)
     }
 
+    //TODO post機能を実装する
     pub async fn post_blog(&self, request: Request<PostBlog>) -> Result<(), Status> {
         let user_id = self.auth_domain.auth(request)?;
-        let user = self.infrastructure.get_user_by_id(user_id).await?;
+        let _user = self.infrastructure.get_user_by_id(user_id).await?;
         Ok(())
     }
 }

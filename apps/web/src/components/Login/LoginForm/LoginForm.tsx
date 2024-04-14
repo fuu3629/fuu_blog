@@ -13,12 +13,14 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useLoginForm } from "./lib";
+import { useRouter } from "next/router";
 export interface LoginFormProps {}
 
 export function LoginForm({}: LoginFormProps) {
   const { register, onSubmit, formState } = useLoginForm();
-  const handleCreateNewAccount = () => {
-    window.location.href = "/createNewAccount";
+  const router = useRouter();
+  const handleCreateNewAccount = async () => {
+    await router.push("/CreateNewAccount");
   };
   return (
     <>

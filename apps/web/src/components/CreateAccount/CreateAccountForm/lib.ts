@@ -39,14 +39,13 @@ export const useCreateAccountForm = (
       QiitaApiKey: data.qiitaApiKey,
     };
     const res = await client.createUser(req);
-    console.log(res);
     setToken(res.token);
     setCookie(null, "auth", res.token, {
       maxAge: 60 * 60,
       path: "/",
     });
     //TODO
-    window.location.href = "/Home";
+    window.location.href = "/";
   };
   return { register, onSubmit: handleSubmit(onSubmit), formState };
 };

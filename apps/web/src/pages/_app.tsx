@@ -20,6 +20,8 @@ export default function App(
   useEffect(() => {
     // CSR用認証チェック
 
+    // const notAuthPath = ["/login", "/createNewAccount", "/_error", "/", ""];
+
     router.beforePopState(({ url, as, options }) => {
       // ログイン画面とエラー画面遷移時のみ認証チェックを行わない
       if (
@@ -42,7 +44,7 @@ export default function App(
         <Box h="100vh" w="100vw">
           <AppBar />
           <Flex>
-            <SideBar />
+            {/* <SideBar /> */}
             <Component {...pageProps} />
           </Flex>
         </Box>

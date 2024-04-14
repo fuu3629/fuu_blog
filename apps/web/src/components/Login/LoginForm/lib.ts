@@ -34,8 +34,7 @@ export const useLoginForm = () => {
         maxAge: 60 * 60,
         path: "/",
       });
-      //TODO
-      window.location.href = "/Home";
+      window.location.href = "/";
     } catch (e) {
       alert("Login failed");
     }

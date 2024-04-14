@@ -1,4 +1,6 @@
-use super::qiita::{QiitaItem, QiitaTag};
+use super::qiita::QiitaTag;
+use crate::infrastructure::entities::blog::Model as BlogModel;
+use crate::infrastructure::entities::tag::Model as TagModel;
 use crate::infrastructure::entities::user::Model as UserModel;
 use crate::team_blog::Blog;
 use crate::team_blog::Member;
@@ -19,15 +21,22 @@ impl From<QiitaTag> for Tag {
     }
 }
 
-impl From<QiitaItem> for Blog {
-    fn from(item: QiitaItem) -> Self {
+//TODO Blogのエンティティにurlを追加する
+impl From<BlogModel> for Blog {
+    fn from(item: BlogModel) -> Self {
         Blog {
             id: item.id,
             title: item.title,
-            url: item.url,
+            url: "".to_string(),
             created_at: item.created_at,
             body: item.body,
-            tags: item.tags.into_iter().map(|tag| tag.into()).collect(),
+            tags: vec![],
         }
+    }
+}
+
+impl From<TagModel> for Tag {
+    fn from(tag: TagModel) -> Self {
+        Tag { name: tag.name }
     }
 }

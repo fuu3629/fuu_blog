@@ -71,6 +71,36 @@ impl InfrastructureImpl {
         Ok(user)
     }
 
+    pub async fn get_blog_by_id(&self, id: i64) -> Result<blog::Model, InfrastructureError> {
+        let db = establish_connection().await?;
+        let blog = blog::Entity::find_by_id(id).one(&db).await?.unwrap();
+        Ok(blog)
+    }
+
+    pub async fn get_blog_by_user_ids(
+        &self,
+        ids: Vec<i64>,
+    ) -> Result<Vec<blog::Model>, InfrastructureError> {
+        let db = establish_connection().await?;
+        let blogs = blog::Entity::find()
+            .filter(blog::Column::UserId.is_in(ids))
+            .all(&db)
+            .await?;
+        Ok(blogs)
+    }
+
+    pub async fn get_tags_by_blog_id(
+        &self,
+        blog_id: i64,
+    ) -> Result<Vec<tag::Model>, InfrastructureError> {
+        let db = establish_connection().await?;
+        let tags = tag::Entity::find()
+            .filter(tag::Column::BlogId.eq(blog_id))
+            .all(&db)
+            .await?;
+        Ok(tags)
+    }
+
     pub async fn get_user_by_id(&self, user_id: i64) -> Result<user::Model, InfrastructureError> {
         let db = establish_connection().await?;
         let user = User::find_by_id(user_id).one(&db).await?.unwrap();
@@ -130,7 +160,7 @@ impl InfrastructureImpl {
         Ok(is_user_exist)
     }
 
-    pub async fn get_blog_by_user(
+    pub async fn fetch_blog_by_user(
         &self,
         ids: Vec<String>,
     ) -> Result<Vec<QiitaItem>, InfrastructureError> {
@@ -138,14 +168,6 @@ impl InfrastructureImpl {
         let query = format!("page=1&per_page=10&query=user:{}", ids.join(","));
         let res = client
             .get::<Vec<QiitaItem>>(&format!("https://qiita.com/api/v2/items?{}", query))
-            .await?;
-        Ok(res)
-    }
-
-    pub async fn get_blog_by_id(&self, id: String) -> Result<QiitaItem, InfrastructureError> {
-        let client = QiitaClient::new(format!("Bearer {}", config::CONFIG.qiita_api_key).as_str());
-        let res = client
-            .get::<QiitaItem>(&format!("https://qiita.com/api/v2/items/:{}", id))
             .await?;
         Ok(res)
     }

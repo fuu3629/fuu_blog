@@ -39,7 +39,7 @@ message GetMembersResponse {
 }
 
 message GetBlogByUserRequest {
-    repeated string ids = 1;
+    repeated int64 ids = 1;
 }
 
 message Tag {
@@ -47,7 +47,7 @@ message Tag {
 }
 
 message Blog {
-    string id = 1;
+    int64 id = 1;
     string created_at = 2;
     string title = 3;
     string url = 4;
@@ -68,7 +68,7 @@ message Blogs {
 }
 
 message GetBlogByIdRequest {
-    string id = 1;
+    int64 id = 1;
 }
 
 
