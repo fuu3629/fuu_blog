@@ -1,3 +1,4 @@
+import { Blog } from "@/__generated__/services/blog_pb";
 import {
   Avatar,
   Box,
@@ -7,7 +8,6 @@ import {
   Link,
   VStack,
 } from "@chakra-ui/react";
-import { Blog } from "../../../../services/blog_pb";
 import { useRouter } from "next/router";
 
 export interface BlogCardProps {

@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BlogService } from "../../../../services/blog_connectweb";
 import type { PartialMessage } from "@bufbuild/protobuf";
-import { LoginRequest } from "../../../../services/blog_pb";
 import { setCookie } from "nookies";
 import { useClient } from "@/pages/api/ClientProvider";
+import { BlogService } from "@/__generated__/services/blog_connectweb";
+import { LoginRequest } from "@/__generated__/services/blog_pb";
 
 export const loginFormSchema = z.object({
   name: z.string(),

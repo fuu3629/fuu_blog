@@ -1,8 +1,8 @@
 import { createGrpcWebTransport } from "@bufbuild/connect-web";
 import { createPromiseClient } from "@bufbuild/connect";
 import type { PromiseClient } from "@bufbuild/connect";
-import { BlogService } from "../../../services/blog_connectweb";
 import React from "react";
+import { BlogService } from "@/__generated__/services/blog_connectweb";
 
 const transport = createGrpcWebTransport({
   baseUrl: process.env.NEXT_PUBLIC_BACKEND_URL as string,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useClient } from "./api/ClientProvider";
-import { BlogService } from "../../services/blog_connectweb";
-import { Blog, Member } from "../../services/blog_pb";
+import { BlogService } from "@/__generated__/services/blog_connectweb";
+import { Blog, Member } from "@/__generated__/services/blog_pb";
 import { BlogCard } from "@/components/UserId/BlogCard";
 
 export default function Home() {
@@ -10,10 +10,10 @@ export default function Home() {
   const client = useClient(BlogService);
 
   useEffect(() => {
-    const res = client.getMembers({}).then((res) => {
+    client.getMembers({}).then((res) => {
       setMembers(res.members);
       const ids = res.members.map((member) => member.userId);
-      const blog = client.getBlogByUser({ ids: ids }).then((res) => {
+      client.getBlogByUser({ ids: ids }).then((res) => {
         setBlogs(res.blogs);
       });
     });

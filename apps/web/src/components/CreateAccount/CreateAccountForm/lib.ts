@@ -1,13 +1,12 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createGrpcWebTransport } from "@bufbuild/connect-web";
-import { createPromiseClient } from "@bufbuild/connect";
-import { BlogService } from "../../../../services/blog_connectweb";
 import type { PartialMessage } from "@bufbuild/protobuf";
-import { CreateUserRequest } from "../../../../services/blog_pb";
 import { Dispatch, SetStateAction } from "react";
 import { setCookie } from "nookies";
+import { useClient } from "@/pages/api/ClientProvider";
+import { BlogService } from "@/__generated__/services/blog_connectweb";
+import { CreateUserRequest } from "@/__generated__/services/blog_pb";
 
 export const createAccountFormSchema = z.object({
   userName: z.string().min(1, "User Name must be at least 1 characters"),
@@ -28,10 +27,7 @@ export const useCreateAccountForm = (
       resolver: zodResolver(createAccountFormSchema),
     });
   const onSubmit = async (data: CreateAccountFormSchemaType) => {
-    const transport = createGrpcWebTransport({
-      baseUrl: "http://127.0.0.1:50052",
-    });
-    const client = createPromiseClient(BlogService, transport);
+    const client = useClient(BlogService);
     const req: PartialMessage<CreateUserRequest> = {
       name: data.userName,
       password: data.password,
