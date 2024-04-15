@@ -13,9 +13,11 @@ export default function Index() {
   const [blog, setBlog] = useState<Blog>();
 
   useEffect(() => {
-    const res = client.getBlogById({ id: blogId as string }).then((res) => {
-      setBlog(res);
-    });
+    const res = client
+      .getBlogById({ id: BigInt(blogId as string) })
+      .then((res) => {
+        setBlog(res);
+      });
   });
   return (
     <div>

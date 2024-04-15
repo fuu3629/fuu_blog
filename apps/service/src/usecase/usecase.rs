@@ -34,6 +34,7 @@ impl UsecaseImpl {
                 let user_id = self
                     .infrastructure
                     .create_user(
+                        request.user_id.clone(),
                         request.name,
                         hash_password,
                         request.qiita_api_key,
@@ -44,13 +45,15 @@ impl UsecaseImpl {
                     .infrastructure
                     .fetch_blog_by_user(vec![qiita_id])
                     .await?;
-                self.infrastructure.register_blog(user_id, blogs).await?;
+                let user_name = request.user_id.clone();
+                self.infrastructure.register_blog(&user_name, blogs).await?;
                 _token = self.auth_domain.generate_token(user_id)?;
             }
             None => {
                 let user_id = self
                     .infrastructure
                     .create_user(
+                        request.user_id.clone(),
                         request.name,
                         hash_password,
                         request.qiita_api_key,
@@ -71,7 +74,10 @@ impl UsecaseImpl {
     }
 
     pub async fn login(&self, request: LoginRequest) -> Result<Token, Status> {
-        let user = self.infrastructure.get_user_by_name(request.name).await?;
+        let user = self
+            .infrastructure
+            .get_user_by_user_id(request.user_id)
+            .await?;
         match verify(request.password, &user.password) {
             Ok(true) => {
                 let token = self.auth_domain.generate_token(user.id)?;
@@ -89,7 +95,7 @@ impl UsecaseImpl {
         Ok(members)
     }
 
-    pub async fn get_blog_by_user(&self, ids: Vec<i64>) -> Result<Blogs, Status> {
+    pub async fn get_blog_by_user(&self, ids: Vec<String>) -> Result<Blogs, Status> {
         let res = self.infrastructure.get_blog_by_user_ids(ids).await?;
         let mut blogs: Blogs = Blogs {
             blogs: res.into_iter().map(|item| Blog::from(item)).collect(),

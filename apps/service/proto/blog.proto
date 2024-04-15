@@ -18,20 +18,22 @@ message Token {
 }
 
 message CreateUserRequest {
-    string name = 1;
-    string password = 2;
-    optional string QiitaId = 3;
-    optional string QiitaApiKey = 4;
+    string userId = 1;
+    string name = 2;
+    string password = 3;
+    optional string QiitaId = 4;
+    optional string QiitaApiKey = 5;
 }
 
 message LoginRequest {
-    string name = 1;
+    string userId = 1;
     string password = 2;
 }
 
 message Member {
-    int64 id = 1;
+    string userId = 1;
     string name = 2;
+    // string avater
 }
 
 message GetMembersResponse {
@@ -39,7 +41,7 @@ message GetMembersResponse {
 }
 
 message GetBlogByUserRequest {
-    repeated int64 ids = 1;
+    repeated string ids = 1;
 }
 
 message Tag {
@@ -53,6 +55,7 @@ message Blog {
     string url = 4;
     string body = 5;
     repeated Tag tags = 6;
+    string user_id = 7;
 }
 
 message PostBlog {

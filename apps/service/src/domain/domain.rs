@@ -9,7 +9,7 @@ use crate::team_blog::Tag;
 impl From<UserModel> for Member {
     fn from(user: UserModel) -> Self {
         Member {
-            id: user.id as i64,
+            user_id: user.user_id,
             name: user.name,
         }
     }
@@ -31,6 +31,7 @@ impl From<BlogModel> for Blog {
             created_at: item.created_at,
             body: item.body,
             tags: vec![],
+            user_id: item.user_id,
         }
     }
 }

@@ -20,7 +20,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Tag::Name).string().not_null())
                     .col(ColumnDef::new(Tag::BlogId).big_integer().not_null())
-                    .col(ColumnDef::new(Tag::UserId).big_integer().not_null())
+                    .col(ColumnDef::new(Tag::UserId).string().not_null())
                     .to_owned(),
             )
             .await

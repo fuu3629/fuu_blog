@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createGrpcWebTransport } from "@bufbuild/connect-web";
-import { createPromiseClient } from "@bufbuild/connect";
 import { BlogService } from "../../../../services/blog_connectweb";
 import type { PartialMessage } from "@bufbuild/protobuf";
 import { LoginRequest } from "../../../../services/blog_pb";
 import { setCookie } from "nookies";
+import { useClient } from "@/pages/api/ClientProvider";
 
 export const loginFormSchema = z.object({
   name: z.string(),
@@ -20,12 +19,9 @@ export const useLoginForm = () => {
     resolver: zodResolver(loginFormSchema),
   });
   const onSubmit = async (data: LoginFormSchemaType) => {
-    const transport = createGrpcWebTransport({
-      baseUrl: "http://127.0.0.1:50052",
-    });
-    const client = createPromiseClient(BlogService, transport);
+    const client = useClient(BlogService);
     const req: PartialMessage<LoginRequest> = {
-      name: data.name,
+      userId: data.name,
       password: data.password,
     };
     try {

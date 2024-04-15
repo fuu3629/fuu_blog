@@ -21,7 +21,7 @@ impl QiitaClient {
     }
 
     pub async fn get<T: serde::de::DeserializeOwned>(self, url: &str) -> Result<T, Error> {
-        println!("url: {}", url);
+        println!("url: {:?}", url);
         let res = self.client.get(url).send().await?;
         let ans = res.json::<T>().await?;
         Ok(ans)

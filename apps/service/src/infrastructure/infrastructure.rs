@@ -14,6 +14,7 @@ pub struct InfrastructureImpl {}
 impl InfrastructureImpl {
     pub async fn create_user(
         &self,
+        user_id: String,
         name: String,
         hash_password: String,
         qiita_api_key: Option<String>,
@@ -21,6 +22,7 @@ impl InfrastructureImpl {
     ) -> Result<i64, InfrastructureError> {
         let db = establish_connection().await?;
         let user = user::ActiveModel {
+            user_id: ActiveValue::set(user_id),
             name: ActiveValue::set(name),
             password: ActiveValue::set(hash_password),
             qiita_api_key: ActiveValue::set(qiita_api_key),
@@ -58,13 +60,13 @@ impl InfrastructureImpl {
         Ok(members)
     }
 
-    pub async fn get_user_by_name(
+    pub async fn get_user_by_user_id(
         &self,
-        user_name: String,
+        user_id: String,
     ) -> Result<user::Model, InfrastructureError> {
         let db = establish_connection().await?;
         let user = User::find()
-            .filter(user::Column::Name.eq(user_name))
+            .filter(user::Column::UserId.eq(user_id))
             .one(&db)
             .await?
             .unwrap();
@@ -79,7 +81,7 @@ impl InfrastructureImpl {
 
     pub async fn get_blog_by_user_ids(
         &self,
-        ids: Vec<i64>,
+        ids: Vec<String>,
     ) -> Result<Vec<blog::Model>, InfrastructureError> {
         let db = establish_connection().await?;
         let blogs = blog::Entity::find()
@@ -109,7 +111,7 @@ impl InfrastructureImpl {
 
     pub async fn register_blog(
         &self,
-        user_id: i64,
+        user_id: &String,
         blogs: Vec<QiitaItem>,
     ) -> Result<(), InfrastructureError> {
         let db = establish_connection().await?;
@@ -117,7 +119,7 @@ impl InfrastructureImpl {
             .clone()
             .iter()
             .map(|item| blog::ActiveModel {
-                user_id: ActiveValue::set(user_id),
+                user_id: ActiveValue::set(user_id.to_string()),
                 title: ActiveValue::set(item.title.clone()),
                 created_at: ActiveValue::set(item.created_at.clone()),
                 body: ActiveValue::set(item.body.clone()),
@@ -143,7 +145,7 @@ impl InfrastructureImpl {
                 .map(|tag| tag::ActiveModel {
                     blog_id: ActiveValue::set(blog_id),
                     name: ActiveValue::set(tag.clone().name),
-                    user_id: ActiveValue::set(user_id),
+                    user_id: ActiveValue::set(user_id.to_string()),
                     ..Default::default()
                 })
                 .collect::<Vec<tag::ActiveModel>>();
@@ -166,6 +168,7 @@ impl InfrastructureImpl {
     ) -> Result<Vec<QiitaItem>, InfrastructureError> {
         let client = QiitaClient::new(format!("Bearer {}", config::CONFIG.qiita_api_key).as_str());
         let query = format!("page=1&per_page=10&query=user:{}", ids.join(","));
+        println!("{:?}", query);
         let res = client
             .get::<Vec<QiitaItem>>(&format!("https://qiita.com/api/v2/items?{}", query))
             .await?;

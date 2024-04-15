@@ -6,7 +6,6 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-
         manager
             .create_table(
                 Table::create()
@@ -19,7 +18,13 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(User::Name).string().unique_key().not_null())
+                    .col(
+                        ColumnDef::new(User::UserId)
+                            .string()
+                            .unique_key()
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(User::Name).string().not_null())
                     .col(ColumnDef::new(User::QiitaId).string())
                     .col(ColumnDef::new(User::Avatar).binary())
                     .col(ColumnDef::new(User::Password).string().not_null())
@@ -40,6 +45,7 @@ impl MigrationTrait for Migration {
 enum User {
     Table,
     Id,
+    UserId,
     Name,
     Password,
     Avatar,

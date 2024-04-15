@@ -48,22 +48,27 @@ export class Token extends Message<Token> {
  */
 export class CreateUserRequest extends Message<CreateUserRequest> {
   /**
-   * @generated from field: string name = 1;
+   * @generated from field: string userId = 1;
+   */
+  userId = "";
+
+  /**
+   * @generated from field: string name = 2;
    */
   name = "";
 
   /**
-   * @generated from field: string password = 2;
+   * @generated from field: string password = 3;
    */
   password = "";
 
   /**
-   * @generated from field: optional string QiitaId = 3;
+   * @generated from field: optional string QiitaId = 4;
    */
   QiitaId?: string;
 
   /**
-   * @generated from field: optional string QiitaApiKey = 4;
+   * @generated from field: optional string QiitaApiKey = 5;
    */
   QiitaApiKey?: string;
 
@@ -75,10 +80,11 @@ export class CreateUserRequest extends Message<CreateUserRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "blog.CreateUserRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "password", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "QiitaId", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 4, name: "QiitaApiKey", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 1, name: "userId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "password", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "QiitaId", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 5, name: "QiitaApiKey", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateUserRequest {
@@ -103,9 +109,9 @@ export class CreateUserRequest extends Message<CreateUserRequest> {
  */
 export class LoginRequest extends Message<LoginRequest> {
   /**
-   * @generated from field: string name = 1;
+   * @generated from field: string userId = 1;
    */
-  name = "";
+  userId = "";
 
   /**
    * @generated from field: string password = 2;
@@ -120,7 +126,7 @@ export class LoginRequest extends Message<LoginRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "blog.LoginRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "userId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "password", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
@@ -146,11 +152,13 @@ export class LoginRequest extends Message<LoginRequest> {
  */
 export class Member extends Message<Member> {
   /**
-   * @generated from field: int64 id = 1;
+   * @generated from field: string userId = 1;
    */
-  id = protoInt64.zero;
+  userId = "";
 
   /**
+   * string avater
+   *
    * @generated from field: string name = 2;
    */
   name = "";
@@ -163,7 +171,7 @@ export class Member extends Message<Member> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "blog.Member";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 1, name: "userId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
@@ -300,9 +308,9 @@ export class Tag extends Message<Tag> {
  */
 export class Blog extends Message<Blog> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: int64 id = 1;
    */
-  id = "";
+  id = protoInt64.zero;
 
   /**
    * @generated from field: string created_at = 2;
@@ -329,6 +337,11 @@ export class Blog extends Message<Blog> {
    */
   tags: Tag[] = [];
 
+  /**
+   * @generated from field: string user_id = 7;
+   */
+  userId = "";
+
   constructor(data?: PartialMessage<Blog>) {
     super();
     proto3.util.initPartial(data, this);
@@ -337,12 +350,13 @@ export class Blog extends Message<Blog> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "blog.Blog";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
     { no: 2, name: "created_at", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "title", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "body", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "tags", kind: "message", T: Tag, repeated: true },
+    { no: 7, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Blog {
@@ -459,9 +473,9 @@ export class Blogs extends Message<Blogs> {
  */
 export class GetBlogByIdRequest extends Message<GetBlogByIdRequest> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: int64 id = 1;
    */
-  id = "";
+  id = protoInt64.zero;
 
   constructor(data?: PartialMessage<GetBlogByIdRequest>) {
     super();
@@ -471,7 +485,7 @@ export class GetBlogByIdRequest extends Message<GetBlogByIdRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "blog.GetBlogByIdRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetBlogByIdRequest {
