@@ -304,6 +304,73 @@ export class Tag extends Message<Tag> {
 }
 
 /**
+ * @generated from message blog.BlogPreview
+ */
+export class BlogPreview extends Message<BlogPreview> {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id = protoInt64.zero;
+
+  /**
+   * @generated from field: string created_at = 2;
+   */
+  createdAt = "";
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title = "";
+
+  /**
+   * @generated from field: string url = 4;
+   */
+  url = "";
+
+  /**
+   * @generated from field: repeated blog.Tag tags = 5;
+   */
+  tags: Tag[] = [];
+
+  /**
+   * @generated from field: string user_id = 6;
+   */
+  userId = "";
+
+  constructor(data?: PartialMessage<BlogPreview>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "blog.BlogPreview";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 2, name: "created_at", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "title", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "tags", kind: "message", T: Tag, repeated: true },
+    { no: 6, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): BlogPreview {
+    return new BlogPreview().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): BlogPreview {
+    return new BlogPreview().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): BlogPreview {
+    return new BlogPreview().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: BlogPreview | PlainMessage<BlogPreview> | undefined, b: BlogPreview | PlainMessage<BlogPreview> | undefined): boolean {
+    return proto3.util.equals(BlogPreview, a, b);
+  }
+}
+
+/**
  * @generated from message blog.Blog
  */
 export class Blog extends Message<Blog> {
@@ -436,9 +503,9 @@ export class PostBlog extends Message<PostBlog> {
  */
 export class Blogs extends Message<Blogs> {
   /**
-   * @generated from field: repeated blog.Blog blogs = 1;
+   * @generated from field: repeated blog.BlogPreview blogs = 1;
    */
-  blogs: Blog[] = [];
+  blogs: BlogPreview[] = [];
 
   constructor(data?: PartialMessage<Blogs>) {
     super();
@@ -448,7 +515,7 @@ export class Blogs extends Message<Blogs> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "blog.Blogs";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "blogs", kind: "message", T: Blog, repeated: true },
+    { no: 1, name: "blogs", kind: "message", T: BlogPreview, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Blogs {

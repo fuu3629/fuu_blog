@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { PartialMessage } from "@bufbuild/protobuf";
 import { setCookie } from "nookies";
-import { useClient } from "@/pages/api/ClientProvider";
+import { clientProvider } from "@/pages/api/ClientProvider";
 import { BlogService } from "@/__generated__/services/blog_connectweb";
 import { LoginRequest } from "@/__generated__/services/blog_pb";
 
@@ -19,7 +19,7 @@ export const useLoginForm = () => {
     resolver: zodResolver(loginFormSchema),
   });
   const onSubmit = async (data: LoginFormSchemaType) => {
-    const client = useClient(BlogService);
+    const client = clientProvider();
     const req: PartialMessage<LoginRequest> = {
       userId: data.name,
       password: data.password,

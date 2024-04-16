@@ -3,6 +3,7 @@ use crate::infrastructure::entities::blog::Model as BlogModel;
 use crate::infrastructure::entities::tag::Model as TagModel;
 use crate::infrastructure::entities::user::Model as UserModel;
 use crate::team_blog::Blog;
+use crate::team_blog::BlogPreview;
 use crate::team_blog::Member;
 use crate::team_blog::Tag;
 
@@ -30,6 +31,19 @@ impl From<BlogModel> for Blog {
             url: "".to_string(),
             created_at: item.created_at,
             body: item.body,
+            tags: vec![],
+            user_id: item.user_id,
+        }
+    }
+}
+
+impl From<BlogModel> for BlogPreview {
+    fn from(item: BlogModel) -> Self {
+        BlogPreview {
+            id: item.id,
+            title: item.title,
+            url: "".to_string(),
+            created_at: item.created_at,
             tags: vec![],
             user_id: item.user_id,
         }
