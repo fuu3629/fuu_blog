@@ -79,7 +79,10 @@ impl blog_service_server::BlogService for BlogServer {
         request: Request<GetBlogByUserRequest>,
     ) -> Result<Response<Blogs>, Status> {
         let req = request.into_inner();
-        let blogs = self.usecase.get_blog_by_user(req.ids).await?;
+        let blogs = self
+            .usecase
+            .get_blog_by_user(req.ids, req.pagination.unwrap())
+            .await?;
         Ok(Response::new(blogs))
     }
 

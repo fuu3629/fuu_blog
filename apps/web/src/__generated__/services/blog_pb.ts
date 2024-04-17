@@ -7,6 +7,118 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 
 /**
+ * @generated from enum blog.Order
+ */
+export enum Order {
+  /**
+   * @generated from enum value: ASC = 0;
+   */
+  ASC = 0,
+
+  /**
+   * @generated from enum value: DESC = 1;
+   */
+  DESC = 1,
+}
+// Retrieve enum metadata with: proto3.getEnumType(Order)
+proto3.util.setEnumType(Order, "blog.Order", [
+  { no: 0, name: "ASC" },
+  { no: 1, name: "DESC" },
+]);
+
+/**
+ * @generated from message blog.Pagination
+ */
+export class Pagination extends Message<Pagination> {
+  /**
+   * @generated from field: int32 page = 1;
+   */
+  page = 0;
+
+  /**
+   * @generated from field: int32 pageSize = 2;
+   */
+  pageSize = 0;
+
+  /**
+   * @generated from field: blog.Order order = 3;
+   */
+  order = Order.ASC;
+
+  constructor(data?: PartialMessage<Pagination>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "blog.Pagination";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "page", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: "pageSize", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "order", kind: "enum", T: proto3.getEnumType(Order) },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Pagination {
+    return new Pagination().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Pagination {
+    return new Pagination().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Pagination {
+    return new Pagination().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Pagination | PlainMessage<Pagination> | undefined, b: Pagination | PlainMessage<Pagination> | undefined): boolean {
+    return proto3.util.equals(Pagination, a, b);
+  }
+}
+
+/**
+ * @generated from message blog.PageInfo
+ */
+export class PageInfo extends Message<PageInfo> {
+  /**
+   * @generated from field: blog.Pagination pagination = 1;
+   */
+  pagination?: Pagination;
+
+  /**
+   * @generated from field: int32 totalCount = 2;
+   */
+  totalCount = 0;
+
+  constructor(data?: PartialMessage<PageInfo>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "blog.PageInfo";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "pagination", kind: "message", T: Pagination },
+    { no: 2, name: "totalCount", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PageInfo {
+    return new PageInfo().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PageInfo {
+    return new PageInfo().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PageInfo {
+    return new PageInfo().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PageInfo | PlainMessage<PageInfo> | undefined, b: PageInfo | PlainMessage<PageInfo> | undefined): boolean {
+    return proto3.util.equals(PageInfo, a, b);
+  }
+}
+
+/**
  * @generated from message blog.Token
  */
 export class Token extends Message<Token> {
@@ -238,6 +350,11 @@ export class GetBlogByUserRequest extends Message<GetBlogByUserRequest> {
    */
   ids: string[] = [];
 
+  /**
+   * @generated from field: blog.Pagination pagination = 2;
+   */
+  pagination?: Pagination;
+
   constructor(data?: PartialMessage<GetBlogByUserRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -247,6 +364,7 @@ export class GetBlogByUserRequest extends Message<GetBlogByUserRequest> {
   static readonly typeName = "blog.GetBlogByUserRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "ids", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 2, name: "pagination", kind: "message", T: Pagination },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetBlogByUserRequest {
@@ -507,6 +625,11 @@ export class Blogs extends Message<Blogs> {
    */
   blogs: BlogPreview[] = [];
 
+  /**
+   * @generated from field: blog.PageInfo pageInfo = 2;
+   */
+  pageInfo?: PageInfo;
+
   constructor(data?: PartialMessage<Blogs>) {
     super();
     proto3.util.initPartial(data, this);
@@ -516,6 +639,7 @@ export class Blogs extends Message<Blogs> {
   static readonly typeName = "blog.Blogs";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "blogs", kind: "message", T: BlogPreview, repeated: true },
+    { no: 2, name: "pageInfo", kind: "message", T: PageInfo },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Blogs {

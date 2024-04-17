@@ -12,6 +12,21 @@ service BlogService {
     rpc postBlog(PostBlog) returns (google.protobuf.Empty);
 }
 
+enum Order {
+    ASC = 0;
+    DESC = 1;
+}
+
+message Pagination {
+    int32 page = 1;
+    int32 pageSize = 2;
+    Order order = 3;
+}
+
+message PageInfo {
+    Pagination pagination = 1;
+    int32 totalCount = 2;
+}
 
 message Token {
     string token = 1;
@@ -42,6 +57,7 @@ message GetMembersResponse {
 
 message GetBlogByUserRequest {
     repeated string ids = 1;
+    Pagination pagination = 2;
 }
 
 message Tag {
@@ -78,6 +94,7 @@ message PostBlog {
 
 message Blogs {
     repeated BlogPreview blogs = 1;
+    PageInfo pageInfo = 2;
 }
 
 message GetBlogByIdRequest {

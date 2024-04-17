@@ -1,6 +1,7 @@
 use crate::domain::auth::AuthDomain;
 use crate::team_blog::{
-    Blog, BlogPreview, Blogs, CreateUserRequest, LoginRequest, PostBlog, Tag, Token,
+    Blog, BlogPreview, Blogs, CreateUserRequest, LoginRequest, PageInfo, Pagination, PostBlog, Tag,
+    Token,
 };
 use crate::{infrastructure::infrastructure::InfrastructureImpl, team_blog::Member};
 use bcrypt::verify;
@@ -97,13 +98,29 @@ impl UsecaseImpl {
         Ok(members)
     }
 
-    pub async fn get_blog_by_user(&self, ids: Vec<String>) -> Result<Blogs, Status> {
-        let res = self.infrastructure.get_blog_by_user_ids(ids).await?;
+    pub async fn get_blog_by_user(
+        &self,
+        ids: Vec<String>,
+        pagenation: Pagination,
+    ) -> Result<Blogs, Status> {
+        let (res, total_count) = self
+            .infrastructure
+            .get_blog_by_user_ids(
+                ids,
+                &pagenation.page,
+                &pagenation.page_size,
+                &pagenation.order,
+            )
+            .await?;
         let mut blogs: Blogs = Blogs {
             blogs: res
                 .into_iter()
                 .map(|item| BlogPreview::from(item))
                 .collect(),
+            page_info: Some(PageInfo {
+                pagination: Some(pagenation),
+                total_count: total_count as i32,
+            }),
         };
         for blog in &mut blogs.blogs {
             let tags = self.infrastructure.get_tags_by_blog_id(blog.id).await?;

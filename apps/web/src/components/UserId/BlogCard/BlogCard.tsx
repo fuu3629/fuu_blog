@@ -32,7 +32,7 @@ export function BlogCard({
     <Box bg="gray.600" px={8} py={4} w={w} borderRadius={16} h={h} gap={4}>
       <HStack h={16}>
         <Avatar m={2}></Avatar>
-        <VStack h="100%" gap={1} alignItems={"flex-start"}>
+        <VStack gap={1} alignItems={"flex-start"}>
           <Heading size="sm">{userId}</Heading>
           <Box>{blog?.createdAt}</Box>
         </VStack>

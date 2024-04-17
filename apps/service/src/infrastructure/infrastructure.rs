@@ -1,6 +1,8 @@
 use crate::config;
 use crate::domain::qiita::QiitaItem;
-use sea_orm::{ActiveValue, ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{
+    ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect,
+};
 
 use super::entities::user::Entity as User;
 use super::entities::{blog, tag, user};
@@ -82,13 +84,25 @@ impl InfrastructureImpl {
     pub async fn get_blog_by_user_ids(
         &self,
         ids: Vec<String>,
-    ) -> Result<Vec<blog::Model>, InfrastructureError> {
+        page: &i32,
+        page_size: &i32,
+        order: &i32,
+    ) -> Result<(Vec<blog::Model>, u64), InfrastructureError> {
         let db = establish_connection().await?;
-        let blogs = blog::Entity::find()
-            .filter(blog::Column::UserId.is_in(ids))
-            .all(&db)
+        let total_count = blog::Entity::find()
+            .filter(blog::Column::UserId.is_in(&ids))
+            .count(&db)
             .await?;
-        Ok(blogs)
+        let slect_blog = blog::Entity::find().filter(blog::Column::UserId.is_in(ids));
+        let order_blogs = match order {
+            0 => slect_blog.order_by_asc(blog::Column::CreatedAt),
+            1 => slect_blog.order_by_desc(blog::Column::CreatedAt),
+            _ => slect_blog.order_by_asc(blog::Column::CreatedAt),
+        };
+        let offset = ((page - 1) * page_size) as u64;
+        let limit = page_size.clone() as u64;
+        let blogs = order_blogs.offset(offset).limit(limit).all(&db).await?;
+        Ok((blogs, total_count))
     }
 
     pub async fn get_tags_by_blog_id(

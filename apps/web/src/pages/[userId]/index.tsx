@@ -4,7 +4,7 @@ import { CokiesContext } from "../api/CokiesContext";
 import { useRouter } from "next/router";
 import { BlogCard } from "@/components/UserId/BlogCard/BlogCard";
 import { Box, Flex, HStack, VStack } from "@chakra-ui/react";
-import { Blog, BlogPreview } from "@/__generated__/services/blog_pb";
+import { BlogPreview } from "@/__generated__/services/blog_pb";
 
 export default function Index() {
   const token = useContext(CokiesContext);
@@ -12,11 +12,30 @@ export default function Index() {
   const id = router.query.userId as string;
   const client = clientProvider();
   const [blogs, setBlogs] = useState<BlogPreview[]>();
+  const [paginataion, setPagintaion] = useState({
+    page: 1,
+    pageSize: 10,
+    totalCount: 0,
+  });
 
   useEffect(() => {
-    const res = client.getBlogByUser({ ids: [id] }).then((res) => {
-      setBlogs(res.blogs);
-    });
+    client
+      .getBlogByUser({
+        ids: [id],
+        pagination: {
+          page: paginataion.page,
+          pageSize: paginataion.pageSize,
+          order: 1,
+        },
+      })
+      .then((res) => {
+        setBlogs(res.blogs);
+        setPagintaion({
+          page: res.pageInfo?.pagination?.page!,
+          pageSize: res.pageInfo?.pagination?.pageSize!,
+          totalCount: res.pageInfo?.totalCount!,
+        });
+      });
   }, []);
 
   return (
