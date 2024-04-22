@@ -35,7 +35,8 @@ reqwest = { version = "0.12.1", features = ["json", "blocking"] }
 serde = "1.0.197"
 serde_json = "1.0.114"
 config = "0.14.0"
-chatgpt_rs = "1.2.3"
+chatgpt_rs = { version = "1.2.3", features = ["streams"] }
+futures-core = "0.3.30"
 
 [build-dependencies]
 tonic-build = "0.10.2"

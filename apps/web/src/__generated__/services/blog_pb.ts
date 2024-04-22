@@ -696,3 +696,77 @@ export class GetBlogByIdRequest extends Message<GetBlogByIdRequest> {
   }
 }
 
+/**
+ * @generated from message blog.GetSummaryRequest
+ */
+export class GetSummaryRequest extends Message<GetSummaryRequest> {
+  /**
+   * @generated from field: int64 blog_id = 1;
+   */
+  blogId = protoInt64.zero;
+
+  constructor(data?: PartialMessage<GetSummaryRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "blog.GetSummaryRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "blog_id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSummaryRequest {
+    return new GetSummaryRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSummaryRequest {
+    return new GetSummaryRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSummaryRequest {
+    return new GetSummaryRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSummaryRequest | PlainMessage<GetSummaryRequest> | undefined, b: GetSummaryRequest | PlainMessage<GetSummaryRequest> | undefined): boolean {
+    return proto3.util.equals(GetSummaryRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message blog.GetSummaryResponse
+ */
+export class GetSummaryResponse extends Message<GetSummaryResponse> {
+  /**
+   * @generated from field: string summary_text = 1;
+   */
+  summaryText = "";
+
+  constructor(data?: PartialMessage<GetSummaryResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "blog.GetSummaryResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "summary_text", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSummaryResponse {
+    return new GetSummaryResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSummaryResponse {
+    return new GetSummaryResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSummaryResponse {
+    return new GetSummaryResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSummaryResponse | PlainMessage<GetSummaryResponse> | undefined, b: GetSummaryResponse | PlainMessage<GetSummaryResponse> | undefined): boolean {
+    return proto3.util.equals(GetSummaryResponse, a, b);
+  }
+}
+

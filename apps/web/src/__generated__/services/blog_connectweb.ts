@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Blog, Blogs, CreateUserRequest, GetBlogByIdRequest, GetBlogByUserRequest, GetMembersResponse, LoginRequest, PostBlog, Token } from "./blog_pb";
+import { Blog, Blogs, CreateUserRequest, GetBlogByIdRequest, GetBlogByUserRequest, GetMembersResponse, GetSummaryRequest, GetSummaryResponse, LoginRequest, PostBlog, Token } from "./blog_pb";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -65,6 +65,24 @@ export const BlogService = {
       I: GetBlogByIdRequest,
       O: Blog,
       kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc blog.BlogService.getSummary
+     */
+    getSummary: {
+      name: "getSummary",
+      I: GetSummaryRequest,
+      O: GetSummaryResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc blog.BlogService.getSummaryStream
+     */
+    getSummaryStream: {
+      name: "getSummaryStream",
+      I: GetSummaryRequest,
+      O: GetSummaryResponse,
+      kind: MethodKind.ServerStreaming,
     },
     /**
      * @generated from rpc blog.BlogService.postBlog

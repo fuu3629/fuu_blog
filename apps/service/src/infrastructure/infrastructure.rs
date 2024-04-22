@@ -1,6 +1,7 @@
 use crate::config;
 use crate::domain::prompts::Prompts;
 use crate::domain::qiita::QiitaItem;
+use chatgpt::types::ResponseChunk;
 use sea_orm::{
     ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect,
 };
@@ -11,6 +12,7 @@ use super::error::InfrastructureError;
 use super::lib::establish_connection;
 use super::qiita_client::QiitaClient;
 use chatgpt::prelude::{ChatGPT, ModelConfigurationBuilder};
+use futures_core::stream::Stream;
 use std::time::Duration;
 
 #[derive(Default)]
@@ -204,5 +206,23 @@ impl InfrastructureImpl {
         let res = client.send_message(prompts.summary_pre_prompt).await?;
         println!("{:?}", res);
         Ok(res.message().content.clone())
+    }
+
+    pub async fn fetch_summary_stream(
+        &self,
+        blog: blog::Model,
+    ) -> Result<impl Stream<Item = ResponseChunk>, InfrastructureError> {
+        let client = ChatGPT::new_with_config(
+            &config::CONFIG.gpt_api_key,
+            ModelConfigurationBuilder::default()
+                .timeout(Duration::from_secs(100))
+                .build()
+                .unwrap(),
+        )?;
+        let prompts = Prompts::new(blog.body);
+        let stream = client
+            .send_message_streaming(prompts.summary_pre_prompt)
+            .await?;
+        Ok(stream)
     }
 }

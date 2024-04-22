@@ -4,7 +4,11 @@ use crate::team_blog::{
     GetSummaryRequest, GetSummaryResponse, LoginRequest, PostBlog, Token,
 };
 use crate::{team_blog::blog_service_server, usecase::usecase::UsecaseImpl};
+use chatgpt::types::ResponseChunk;
+use futures::StreamExt;
 use std::net::SocketAddr;
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
 use tonic::{transport::Server, Request, Response, Status};
 use tonic_reflection::server::Builder;
 use tonic_web::GrpcWebLayer;
@@ -106,5 +110,41 @@ impl blog_service_server::BlogService for BlogServer {
         let req = request.into_inner();
         let summary = self.usecase.get_summary(req.blog_id).await?;
         Ok(Response::new(summary))
+    }
+
+    type getSummaryStreamStream = ReceiverStream<Result<GetSummaryResponse, Status>>;
+
+    async fn get_summary_stream(
+        &self,
+        request: Request<GetSummaryRequest>,
+    ) -> Result<Response<Self::getSummaryStreamStream>, Status> {
+        let req = request.into_inner();
+        let summary = self.usecase.get_summary_stream(req.blog_id).await?;
+        let (mut tx, rx) = mpsc::channel(4);
+        tokio::spawn(async move {
+            summary
+                .for_each(|each| async {
+                    match each {
+                        ResponseChunk::Content {
+                            delta,
+                            response_index: _,
+                        } => tx
+                            .send(Ok(GetSummaryResponse {
+                                summary_text: delta,
+                            }))
+                            .await
+                            .unwrap(),
+                        _ => tx
+                            .send(Ok(GetSummaryResponse {
+                                summary_text: "".to_string(),
+                            }))
+                            .await
+                            .unwrap(),
+                    }
+                })
+                .await;
+        });
+
+        Ok(Response::new(ReceiverStream::new(rx)))
     }
 }

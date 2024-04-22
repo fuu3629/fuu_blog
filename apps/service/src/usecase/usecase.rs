@@ -5,6 +5,8 @@ use crate::team_blog::{
 };
 use crate::{infrastructure::infrastructure::InfrastructureImpl, team_blog::Member};
 use bcrypt::verify;
+use chatgpt::types::ResponseChunk;
+use futures_core::stream::Stream;
 use tonic::{Request, Status};
 
 #[derive(Default)]
@@ -147,5 +149,14 @@ impl UsecaseImpl {
         Ok(GetSummaryResponse {
             summary_text: summary,
         })
+    }
+
+    pub async fn get_summary_stream(
+        &self,
+        blog_id: i64,
+    ) -> Result<impl Stream<Item = ResponseChunk>, Status> {
+        let blog = self.infrastructure.get_blog_by_id(blog_id).await?;
+        let summary_stream = self.infrastructure.fetch_summary_stream(blog).await?;
+        Ok(summary_stream)
     }
 }
