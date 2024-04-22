@@ -1,8 +1,9 @@
 use bcrypt;
+use chatgpt;
 use jwt;
+use reqwest;
 use sea_orm::error::DbErr;
 use thiserror::Error;
-use reqwest;
 
 #[derive(Error, Debug)]
 #[non_exhaustive]
@@ -15,6 +16,8 @@ pub enum InfrastructureError {
     JwtError(#[from] jwt::error::Error),
     #[error("Reqwest error: {0}")]
     ReqwestError(#[from] reqwest::Error),
+    #[error("ChatGPT error: {0}")]
+    ChatGPTError(#[from] chatgpt::err::Error),
     #[error("{0}")]
     Unknown(#[source] Box<dyn std::error::Error + Sync + Send>),
 }
@@ -33,6 +36,9 @@ impl From<InfrastructureError> for tonic::Status {
             }
             InfrastructureError::ReqwestError(err) => {
                 tonic::Status::unavailable(format!("Reqwest error: {:?}", err))
+            }
+            InfrastructureError::ChatGPTError(err) => {
+                tonic::Status::unavailable(format!("ChatGPT error: {:?}", err))
             }
             InfrastructureError::Unknown(err) => tonic::Status::unavailable(format!("{:?}", err)),
         }

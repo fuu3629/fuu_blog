@@ -9,6 +9,7 @@ pub struct Config {
     pub database_url: String,
     pub app_key: String,
     pub qiita_api_key: String,
+    pub gpt_api_key: String,
 }
 
 impl Config {
@@ -18,6 +19,7 @@ impl Config {
             database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
             app_key: env::var("APP_KEY").expect("APP_KEY must be set"),
             qiita_api_key: env::var("QIITA_API_KEY").expect("QIITA_API must be set"),
+            gpt_api_key: env::var("GPT_API_KEY").expect("GPT_API_KEY must be set"),
         })
     }
 }

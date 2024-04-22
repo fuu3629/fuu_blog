@@ -9,6 +9,7 @@ service BlogService {
     rpc getMembers(google.protobuf.Empty) returns (GetMembersResponse);
     rpc getBlogByUser(GetBlogByUserRequest) returns (Blogs);
     rpc getBlogById (GetBlogByIdRequest) returns (Blog);
+    rpc getSummary(GetSummaryRequest) returns (GetSummaryResponse);
     rpc postBlog(PostBlog) returns (google.protobuf.Empty);
 }
 
@@ -99,6 +100,14 @@ message Blogs {
 
 message GetBlogByIdRequest {
     int64 id = 1;
+}
+
+message GetSummaryRequest {
+    int64 blog_id = 1;
+}
+
+message GetSummaryResponse {
+    string summary_text = 1;
 }
 
 

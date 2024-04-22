@@ -1,4 +1,5 @@
 use crate::config;
+use crate::domain::prompts::Prompts;
 use crate::domain::qiita::QiitaItem;
 use sea_orm::{
     ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect,
@@ -9,6 +10,8 @@ use super::entities::{blog, tag, user};
 use super::error::InfrastructureError;
 use super::lib::establish_connection;
 use super::qiita_client::QiitaClient;
+use chatgpt::prelude::{ChatGPT, ModelConfigurationBuilder};
+use std::time::Duration;
 
 #[derive(Default)]
 pub struct InfrastructureImpl {}
@@ -16,19 +19,19 @@ pub struct InfrastructureImpl {}
 impl InfrastructureImpl {
     pub async fn create_user(
         &self,
-        user_id: String,
-        name: String,
-        hash_password: String,
-        qiita_api_key: Option<String>,
-        qiita_id: Option<String>,
+        user_id: &String,
+        name: &String,
+        hash_password: &String,
+        qiita_api_key: &Option<String>,
+        qiita_id: &Option<String>,
     ) -> Result<i64, InfrastructureError> {
         let db = establish_connection().await?;
         let user = user::ActiveModel {
-            user_id: ActiveValue::set(user_id),
-            name: ActiveValue::set(name),
-            password: ActiveValue::set(hash_password),
-            qiita_api_key: ActiveValue::set(qiita_api_key),
-            qiita_id: ActiveValue::set(qiita_id),
+            user_id: ActiveValue::set(user_id.to_string()),
+            name: ActiveValue::set(name.to_string()),
+            password: ActiveValue::set(hash_password.to_string()),
+            qiita_api_key: ActiveValue::set(qiita_api_key.clone()),
+            qiita_id: ActiveValue::set(qiita_id.clone()),
             avatar: ActiveValue::set(None),
             ..Default::default()
         };
@@ -170,8 +173,8 @@ impl InfrastructureImpl {
     }
 
     //ユーザーがいるかどうかの確認
-    pub async fn find_user_by_name(&self, qiita_id: String) -> Result<bool, InfrastructureError> {
-        let client = QiitaClient::new(format!("Bearer {}", config::CONFIG.qiita_api_key).as_str());
+    pub async fn find_user_by_name(&self, qiita_id: &String) -> Result<bool, InfrastructureError> {
+        let client = QiitaClient::new(format!("Bearer {}", &config::CONFIG.qiita_api_key).as_str());
         let is_user_exist = client.find_user_by_name(qiita_id.as_str()).await?;
         Ok(is_user_exist)
     }
@@ -180,12 +183,26 @@ impl InfrastructureImpl {
         &self,
         ids: Vec<String>,
     ) -> Result<Vec<QiitaItem>, InfrastructureError> {
-        let client = QiitaClient::new(format!("Bearer {}", config::CONFIG.qiita_api_key).as_str());
-        let query = format!("page=1&per_page=10&query=user:{}", ids.join(","));
+        let client = QiitaClient::new(format!("Bearer {}", &config::CONFIG.qiita_api_key).as_str());
+        let query = format!("page=1&per_page=100&query=user:{}", ids.join(","));
         println!("{:?}", query);
         let res = client
             .get::<Vec<QiitaItem>>(&format!("https://qiita.com/api/v2/items?{}", query))
             .await?;
         Ok(res)
+    }
+
+    pub async fn fetch_summary(&self, blog: blog::Model) -> Result<String, InfrastructureError> {
+        let client = ChatGPT::new_with_config(
+            &config::CONFIG.gpt_api_key,
+            ModelConfigurationBuilder::default()
+                .timeout(Duration::from_secs(100))
+                .build()
+                .unwrap(),
+        )?;
+        let prompts = Prompts::new(blog.body);
+        let res = client.send_message(prompts.summary_pre_prompt).await?;
+        println!("{:?}", res);
+        Ok(res.message().content.clone())
     }
 }

@@ -1,7 +1,7 @@
 use crate::domain::auth::AuthDomain;
 use crate::team_blog::{
-    Blog, BlogPreview, Blogs, CreateUserRequest, LoginRequest, PageInfo, Pagination, PostBlog, Tag,
-    Token,
+    Blog, BlogPreview, Blogs, CreateUserRequest, GetSummaryResponse, LoginRequest, PageInfo,
+    Pagination, PostBlog, Tag, Token,
 };
 use crate::{infrastructure::infrastructure::InfrastructureImpl, team_blog::Member};
 use bcrypt::verify;
@@ -27,21 +27,18 @@ impl UsecaseImpl {
         let hash_password = bcrypt::hash(request.password, 10).unwrap();
         match qiita_id {
             Some(qiita_id) => {
-                let is_user = self
-                    .infrastructure
-                    .find_user_by_name(qiita_id.clone())
-                    .await?;
+                let is_user = self.infrastructure.find_user_by_name(&qiita_id).await?;
                 if !is_user {
                     return Err(Status::invalid_argument("qiita_id is not found"));
                 }
                 let user_id = self
                     .infrastructure
                     .create_user(
-                        request.user_id.clone(),
-                        request.name,
-                        hash_password,
-                        request.qiita_api_key,
-                        request.qiita_id,
+                        &request.user_id,
+                        &request.name,
+                        &hash_password,
+                        &request.qiita_api_key,
+                        &request.qiita_id,
                     )
                     .await?;
                 let blogs = self
@@ -56,11 +53,11 @@ impl UsecaseImpl {
                 let user_id = self
                     .infrastructure
                     .create_user(
-                        request.user_id.clone(),
-                        request.name,
-                        hash_password,
-                        request.qiita_api_key,
-                        request.qiita_id,
+                        &request.user_id.clone(),
+                        &request.name,
+                        &hash_password,
+                        &request.qiita_api_key,
+                        &request.qiita_id,
                     )
                     .await?;
                 _token = self.auth_domain.generate_token(user_id)?;
@@ -142,5 +139,13 @@ impl UsecaseImpl {
         let user_id = self.auth_domain.auth(request)?;
         let _user = self.infrastructure.get_user_by_id(user_id).await?;
         Ok(())
+    }
+
+    pub async fn get_summary(&self, blog_id: i64) -> Result<GetSummaryResponse, Status> {
+        let blog = self.infrastructure.get_blog_by_id(blog_id).await?;
+        let summary = self.infrastructure.fetch_summary(blog).await?;
+        Ok(GetSummaryResponse {
+            summary_text: summary,
+        })
     }
 }

@@ -1,7 +1,7 @@
 use crate::team_blog::blog_service_server::BlogServiceServer;
 use crate::team_blog::{
     Blog, Blogs, CreateUserRequest, GetBlogByIdRequest, GetBlogByUserRequest, GetMembersResponse,
-    LoginRequest, PostBlog, Token,
+    GetSummaryRequest, GetSummaryResponse, LoginRequest, PostBlog, Token,
 };
 use crate::{team_blog::blog_service_server, usecase::usecase::UsecaseImpl};
 use std::net::SocketAddr;
@@ -98,5 +98,13 @@ impl blog_service_server::BlogService for BlogServer {
     async fn post_blog(&self, request: Request<PostBlog>) -> Result<Response<()>, Status> {
         self.usecase.post_blog(request).await?;
         Ok(Response::new(()))
+    }
+    async fn get_summary(
+        &self,
+        request: Request<GetSummaryRequest>,
+    ) -> Result<Response<GetSummaryResponse>, Status> {
+        let req = request.into_inner();
+        let summary = self.usecase.get_summary(req.blog_id).await?;
+        Ok(Response::new(summary))
     }
 }
