@@ -5,7 +5,7 @@ export interface AppBarProps {}
 export function AppBar({}: AppBarProps) {
   const { colorMode, toggleColorMode } = useColorMode();
   return (
-    <Flex bg="blue.600" px="24px" mb={8}>
+    <Flex bg="blue.300" px="24px" mb={8}>
       <Text fontSize={"3xl"} color="white">
         Sky Intern Blog
       </Text>

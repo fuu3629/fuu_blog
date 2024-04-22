@@ -10,8 +10,12 @@ import {
   Link,
   VStack,
   Text,
+  Spacer,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import dayjs, { extend } from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+extend(relativeTime);
 
 export interface BlogCardProps {
   userId: string;
@@ -34,8 +38,25 @@ export function BlogCard({
         <Avatar m={2}></Avatar>
         <VStack gap={1} alignItems={"flex-start"}>
           <Heading size="sm">{userId}</Heading>
-          <Box>{blog?.createdAt}</Box>
+          <Box>{dayjs(blog?.createdAt).format("YYYY年M月D日")}</Box>
         </VStack>
+        <Spacer></Spacer>
+        {dayjs().diff(dayjs(blog?.createdAt), "month") <= 1 ? (
+          <Box h="100%">
+            <Center
+              bg="blue.300"
+              borderRadius={16}
+              h={8}
+              w={16}
+              mt={-4}
+              mr={-8}
+              textAlign={"center"}
+              alignItems={"center"}
+            >
+              New
+            </Center>
+          </Box>
+        ) : null}
       </HStack>
       <Flex h={16} alignItems={"center"} my={4}>
         <Link
