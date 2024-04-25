@@ -28,6 +28,7 @@ export default function Home() {
           },
         })
         .then((res) => {
+          console.log(res);
           setBlogs(res.blogs);
           setTotalCount(res.totalCount);
         });
