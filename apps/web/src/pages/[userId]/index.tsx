@@ -12,29 +12,23 @@ export default function Index() {
   const id = router.query.userId as string;
   const client = clientProvider();
   const [blogs, setBlogs] = useState<BlogPreview[]>();
-  const [paginataion, setPagintaion] = useState({
-    page: 1,
-    pageSize: 10,
-    totalCount: 0,
-  });
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 10;
 
   useEffect(() => {
     client
-      .getBlogByUser({
+      .getBlogByUsers({
         ids: [id],
         pagination: {
-          page: paginataion.page,
-          pageSize: paginataion.pageSize,
+          page: page,
+          pageSize: pageSize,
           order: 1,
         },
       })
       .then((res) => {
         setBlogs(res.blogs);
-        setPagintaion({
-          page: res.pageInfo?.pagination?.page!,
-          pageSize: res.pageInfo?.pagination?.pageSize!,
-          totalCount: res.pageInfo?.totalCount!,
-        });
+        setTotalCount(res.totalCount);
       });
   }, []);
 

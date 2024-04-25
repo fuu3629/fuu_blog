@@ -11,10 +11,7 @@ export default function Home() {
   const [blogs, setBlogs] = useState<BlogPreview[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [page, setPage] = useState(1);
-  const [pageInfo, setPageInfo] = useState({
-    pageSize: 10,
-    totalCount: 0,
-  });
+  const [totalCount, setTotalCount] = useState(0);
   const client = clientProvider();
 
   useEffect(() => {
@@ -22,20 +19,17 @@ export default function Home() {
       setMembers(res.members);
       const ids = res.members.map((member) => member.userId);
       client
-        .getBlogByUser({
+        .getBlogByUsers({
           ids: ids,
           pagination: {
             page: page,
-            pageSize: pageInfo.pageSize,
+            pageSize: 10,
             order: 1,
           },
         })
         .then((res) => {
           setBlogs(res.blogs);
-          setPageInfo({
-            pageSize: res.pageInfo?.pagination?.pageSize!,
-            totalCount: res.pageInfo?.totalCount!,
-          });
+          setTotalCount(res.totalCount);
         });
     });
   }, [page]);
@@ -64,8 +58,8 @@ export default function Home() {
           ))}
         </Flex>
         <Pagination
-          pageSize={pageInfo.pageSize}
-          totalCount={pageInfo.totalCount}
+          pageSize={10}
+          totalCount={totalCount}
           onChange={(page) => {
             setPage(page);
           }}

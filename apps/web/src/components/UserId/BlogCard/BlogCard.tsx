@@ -71,8 +71,8 @@ export function BlogCard({
       </Flex>
       <Flex h="32px" overflowX={"hidden"}>
         {blog?.tags.map((tag) => (
-          <Badge key={tag.name} m={1} color="white">
-            <Text mt="2px">{tag.name}</Text>
+          <Badge key={tag} m={1} color="white">
+            <Text mt="2px">{tag}</Text>
           </Badge>
         ))}
       </Flex>

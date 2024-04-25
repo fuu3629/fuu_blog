@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Blog, Blogs, CreateUserRequest, GetBlogByIdRequest, GetBlogByUserRequest, GetMembersResponse, GetSummaryRequest, GetSummaryResponse, LoginRequest, PostBlog, Token } from "./blog_pb";
+import { CreateUserRequest, CreateUserResponse, GetBlogByIdRequest, GetBlogByIdResponse, GetBlogByUsersRequest, GetBlogByUsersResponse, GetMembersResponse, GetSummaryRequest, GetSummaryResponse, LoginRequest, LoginResponse, PostBlog } from "./blog_pb";
 import { Empty, MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -18,7 +18,7 @@ export const BlogService = {
     createUser: {
       name: "createUser",
       I: CreateUserRequest,
-      O: Token,
+      O: CreateUserResponse,
       kind: MethodKind.Unary,
     },
     /**
@@ -36,7 +36,7 @@ export const BlogService = {
     login: {
       name: "login",
       I: LoginRequest,
-      O: Token,
+      O: LoginResponse,
       kind: MethodKind.Unary,
     },
     /**
@@ -49,12 +49,12 @@ export const BlogService = {
       kind: MethodKind.Unary,
     },
     /**
-     * @generated from rpc blog.BlogService.getBlogByUser
+     * @generated from rpc blog.BlogService.getBlogByUsers
      */
-    getBlogByUser: {
-      name: "getBlogByUser",
-      I: GetBlogByUserRequest,
-      O: Blogs,
+    getBlogByUsers: {
+      name: "getBlogByUsers",
+      I: GetBlogByUsersRequest,
+      O: GetBlogByUsersResponse,
       kind: MethodKind.Unary,
     },
     /**
@@ -63,7 +63,7 @@ export const BlogService = {
     getBlogById: {
       name: "getBlogById",
       I: GetBlogByIdRequest,
-      O: Blog,
+      O: GetBlogByIdResponse,
       kind: MethodKind.Unary,
     },
     /**
