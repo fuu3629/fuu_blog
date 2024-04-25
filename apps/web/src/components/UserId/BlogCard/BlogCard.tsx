@@ -44,7 +44,7 @@ export function BlogCard({
         {dayjs().diff(dayjs(blog?.createdAt), "month") <= 1 ? (
           <Box h="100%">
             <Center
-              bg="blue.300"
+              bg="blue.400"
               borderRadius={16}
               h={8}
               w={16}

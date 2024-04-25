@@ -2,6 +2,6 @@
 
 pub mod prelude;
 
-pub mod blog;
+pub mod post;
 pub mod tag;
 pub mod user;

@@ -9,19 +9,19 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Blog::Table)
+                    .table(Post::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Blog::Id)
+                        ColumnDef::new(Post::Id)
                             .big_integer()
                             .not_null()
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Blog::UserId).string().not_null())
-                    .col(ColumnDef::new(Blog::CreatedAt).string().not_null())
-                    .col(ColumnDef::new(Blog::Title).string().not_null())
-                    .col(ColumnDef::new(Blog::Body).text().not_null())
+                    .col(ColumnDef::new(Post::UserId).string().not_null())
+                    .col(ColumnDef::new(Post::CreatedAt).string().not_null())
+                    .col(ColumnDef::new(Post::Title).string().not_null())
+                    .col(ColumnDef::new(Post::Body).text().not_null())
                     .to_owned(),
             )
             .await
@@ -29,13 +29,13 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Blog::Table).to_owned())
+            .drop_table(Table::drop().table(Post::Table).to_owned())
             .await
     }
 }
 
 #[derive(DeriveIden)]
-enum Blog {
+pub enum Post {
     Table,
     Id,
     UserId,

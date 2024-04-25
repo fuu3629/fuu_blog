@@ -3,12 +3,12 @@ package blog;
 import "google/protobuf/empty.proto";
 
 service BlogService {
-    rpc createUser(CreateUserRequest) returns (Token);
+    rpc createUser(CreateUserRequest) returns (CreateUserResponse);
     rpc deleteUser(google.protobuf.Empty) returns (google.protobuf.Empty);
-    rpc login(LoginRequest) returns (Token);
+    rpc login(LoginRequest) returns (LoginResponse);
     rpc getMembers(google.protobuf.Empty) returns (GetMembersResponse);
-    rpc getBlogByUser(GetBlogByUserRequest) returns (Blogs);
-    rpc getBlogById (GetBlogByIdRequest) returns (Blog);
+    rpc getBlogByUsers(GetBlogByUsersRequest) returns (GetBlogByUsersResponse);
+    rpc getBlogById (GetBlogByIdRequest) returns (GetBlogByIdResponse);
     rpc getSummary(GetSummaryRequest) returns (GetSummaryResponse);
     rpc getSummaryStream(GetSummaryRequest) returns (stream GetSummaryResponse);
     rpc postBlog(PostBlog) returns (google.protobuf.Empty);
@@ -26,12 +26,38 @@ message Pagination {
 }
 
 message PageInfo {
-    Pagination pagination = 1;
     int32 totalCount = 2;
 }
 
-message Token {
-    string token = 1;
+message Member {
+    string userId = 1;
+    string name = 2;
+    // string avater
+}
+
+message BlogPreview {
+    int64 id = 1;
+    string created_at = 2;
+    string title = 3;
+    repeated string tags = 4;
+    string user_id = 5;
+}
+
+
+message Blog {
+    int64 id = 1;
+    string created_at = 2;
+    string title = 3;
+    string body = 4;
+    repeated string tags = 5;
+    string user_id = 6;
+}
+
+message PostBlog {
+    string title = 1;
+    string url = 2;
+    string body = 3;
+    repeated string tags = 4;
 }
 
 message CreateUserRequest {
@@ -42,65 +68,45 @@ message CreateUserRequest {
     optional string QiitaApiKey = 5;
 }
 
+message CreateUserResponse {
+    string token = 1;
+}
+
 message LoginRequest {
     string userId = 1;
     string password = 2;
 }
 
-message Member {
-    string userId = 1;
-    string name = 2;
-    // string avater
+message LoginResponse {
+    string token = 1;
 }
+
 
 message GetMembersResponse {
     repeated Member members = 1;
 }
 
-message GetBlogByUserRequest {
+message GetBlogByUsersRequest {
     repeated string ids = 1;
     Pagination pagination = 2;
 }
 
-message Tag {
-    string name = 1;
-}
-
-message BlogPreview {
-    int64 id = 1;
-    string created_at = 2;
-    string title = 3;
-    string url = 4;
-    repeated Tag tags = 5;
-    string user_id = 6;
-}
-
-
-message Blog {
-    int64 id = 1;
-    string created_at = 2;
-    string title = 3;
-    string url = 4;
-    string body = 5;
-    repeated Tag tags = 6;
-    string user_id = 7;
-}
-
-message PostBlog {
-    string title = 1;
-    string url = 2;
-    string body = 3;
-    repeated string tags = 4;
-}
-
-
-message Blogs {
+message GetBlogByUsersResponse {
     repeated BlogPreview blogs = 1;
-    PageInfo pageInfo = 2;
+    int32 total_count = 2;
 }
 
 message GetBlogByIdRequest {
     int64 id = 1;
+}
+
+message GetBlogByIdResponse {
+    int64 id = 1;
+    string created_at = 2;
+    string title = 3;
+    string body = 4;
+    repeated string tags = 5;
+    string user_id = 6;
 }
 
 message GetSummaryRequest {

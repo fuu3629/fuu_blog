@@ -1,8 +1,9 @@
 use crate::domain::auth::AuthDomain;
-use crate::team_blog::{
-    Blog, BlogPreview, Blogs, CreateUserRequest, GetSummaryResponse, LoginRequest, PageInfo,
-    Pagination, PostBlog, Tag, Token,
+use crate::domain::entity::post::Post;
+use crate::infrastructure::repository::{
+    person_repository::PersonRepository, post_repository::PostRepository,
 };
+use crate::team_blog::{CreateUserRequest, GetSummaryResponse, LoginRequest, Pagination, PostBlog};
 use crate::{infrastructure::infrastructure::InfrastructureImpl, team_blog::Member};
 use bcrypt::verify;
 use chatgpt::types::ResponseChunk;
@@ -12,6 +13,8 @@ use tonic::{Request, Status};
 #[derive(Default)]
 pub struct UsecaseImpl {
     infrastructure: InfrastructureImpl,
+    post_repository: PostRepository,
+    person_repository: PersonRepository,
     auth_domain: AuthDomain,
 }
 
@@ -19,23 +22,23 @@ impl UsecaseImpl {
     pub fn new() -> Self {
         UsecaseImpl {
             infrastructure: InfrastructureImpl::default(),
+            post_repository: PostRepository::default(),
+            person_repository: PersonRepository::default(),
             auth_domain: AuthDomain::default(),
         }
     }
 
     pub async fn create_user(&self, request: CreateUserRequest) -> Result<String, Status> {
         let qiita_id = request.qiita_id.clone();
-        let mut _token = String::new();
         let hash_password = bcrypt::hash(request.password, 10).unwrap();
-        match qiita_id {
+        let token = match qiita_id {
             Some(qiita_id) => {
                 let is_user = self.infrastructure.find_user_by_name(&qiita_id).await?;
                 if !is_user {
                     return Err(Status::invalid_argument("qiita_id is not found"));
                 }
-                let user_id = self
-                    .infrastructure
-                    .create_user(
+                self.person_repository
+                    .save(
                         &request.user_id,
                         &request.name,
                         &hash_password,
@@ -43,47 +46,47 @@ impl UsecaseImpl {
                         &request.qiita_id,
                     )
                     .await?;
-                let blogs = self
+                let qiita_blogs = self
                     .infrastructure
-                    .fetch_blog_by_user(vec![qiita_id])
+                    .fetch_post_by_user(vec![qiita_id])
                     .await?;
-                let user_name = request.user_id.clone();
-                self.infrastructure.register_blog(&user_name, blogs).await?;
-                _token = self.auth_domain.generate_token(user_id)?;
+                let posts: Vec<Post> = qiita_blogs
+                    .into_iter()
+                    .map(|item| Post::from(item))
+                    .collect();
+                for post in posts {
+                    self.post_repository.save(&request.user_id, post).await?;
+                }
+                self.auth_domain.generate_token(&request.user_id)?
             }
             None => {
-                let user_id = self
-                    .infrastructure
-                    .create_user(
-                        &request.user_id.clone(),
+                self.person_repository
+                    .save(
+                        &request.user_id,
                         &request.name,
                         &hash_password,
                         &request.qiita_api_key,
                         &request.qiita_id,
                     )
                     .await?;
-                _token = self.auth_domain.generate_token(user_id)?;
+                self.auth_domain.generate_token(&request.user_id)?
             }
         };
-        Ok(_token)
+        Ok(token)
     }
 
     pub async fn delete_user(&self, request: Request<()>) -> Result<(), Status> {
         let user_id = self.auth_domain.auth(request)?;
-        self.infrastructure.delete_user(user_id).await?;
-        self.infrastructure.delete_blog_by_user_id(user_id).await?;
+        self.person_repository.delete(&user_id).await?;
         Ok(())
     }
 
-    pub async fn login(&self, request: LoginRequest) -> Result<Token, Status> {
-        let user = self
-            .infrastructure
-            .get_user_by_user_id(request.user_id)
-            .await?;
+    pub async fn login(&self, request: LoginRequest) -> Result<String, Status> {
+        let user = self.person_repository.find_by_id(&request.user_id).await?;
         match verify(request.password, &user.password) {
             Ok(true) => {
-                let token = self.auth_domain.generate_token(user.id)?;
-                Ok(Token { token })
+                let token = self.auth_domain.generate_token(&user.user_id)?;
+                Ok(token)
             }
             Ok(false) | Err(_) => {
                 return Err(Status::failed_precondition("Invalid password"));
@@ -92,7 +95,7 @@ impl UsecaseImpl {
     }
 
     pub async fn get_members(&self) -> Result<Vec<Member>, Status> {
-        let user = self.infrastructure.get_members().await?;
+        let user = self.person_repository.find_all().await?;
         let members: Vec<Member> = user.into_iter().map(|user| Member::from(user)).collect();
         Ok(members)
     }
@@ -101,51 +104,38 @@ impl UsecaseImpl {
         &self,
         ids: Vec<String>,
         pagenation: Pagination,
-    ) -> Result<Blogs, Status> {
+    ) -> Result<(Vec<Post>, i32), Status> {
         let (res, total_count) = self
-            .infrastructure
-            .get_blog_by_user_ids(
+            .post_repository
+            .find_by_user_ids(
                 ids,
                 &pagenation.page,
                 &pagenation.page_size,
                 &pagenation.order,
             )
             .await?;
-        let mut blogs: Blogs = Blogs {
-            blogs: res
-                .into_iter()
-                .map(|item| BlogPreview::from(item))
-                .collect(),
-            page_info: Some(PageInfo {
-                pagination: Some(pagenation),
-                total_count: total_count as i32,
-            }),
-        };
-        for blog in &mut blogs.blogs {
-            let tags = self.infrastructure.get_tags_by_blog_id(blog.id).await?;
-            blog.tags = tags.into_iter().map(|tag| Tag::from(tag)).collect();
-        }
-        Ok(blogs)
+        let blogs = res
+            .into_iter()
+            .map(|(blog, tags)| Post::from((blog, tags)))
+            .collect();
+        Ok((blogs, total_count as i32))
     }
 
-    pub async fn get_blog_by_id(&self, id: i64) -> Result<Blog, Status> {
-        let blog = self.infrastructure.get_blog_by_id(id).await?;
-        let tags = self.infrastructure.get_tags_by_blog_id(blog.id).await?;
-        let mut res = Blog::from(blog);
-        res.tags = tags.into_iter().map(|tag| Tag::from(tag)).collect();
-        Ok(res)
+    pub async fn get_blog_by_id(&self, id: i64) -> Result<Post, Status> {
+        let blog = self.post_repository.find_by_id(&id).await?;
+        Ok(Post::from(blog))
     }
 
     //TODO post機能を実装する
     pub async fn post_blog(&self, request: Request<PostBlog>) -> Result<(), Status> {
         let user_id = self.auth_domain.auth(request)?;
-        let _user = self.infrastructure.get_user_by_id(user_id).await?;
+        let _user = self.person_repository.find_by_id(&user_id).await?;
         Ok(())
     }
 
     pub async fn get_summary(&self, blog_id: i64) -> Result<GetSummaryResponse, Status> {
-        let blog = self.infrastructure.get_blog_by_id(blog_id).await?;
-        let summary = self.infrastructure.fetch_summary(blog).await?;
+        let blog = self.post_repository.find_by_id(&blog_id).await?;
+        let summary = self.infrastructure.fetch_summary(Post::from(blog)).await?;
         Ok(GetSummaryResponse {
             summary_text: summary,
         })
@@ -155,8 +145,11 @@ impl UsecaseImpl {
         &self,
         blog_id: i64,
     ) -> Result<impl Stream<Item = ResponseChunk>, Status> {
-        let blog = self.infrastructure.get_blog_by_id(blog_id).await?;
-        let summary_stream = self.infrastructure.fetch_summary_stream(blog).await?;
+        let blog = self.post_repository.find_by_id(&blog_id).await?;
+        let summary_stream = self
+            .infrastructure
+            .fetch_summary_stream(Post::from(blog))
+            .await?;
         Ok(summary_stream)
     }
 }

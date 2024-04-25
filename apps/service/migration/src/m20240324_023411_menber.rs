@@ -12,17 +12,11 @@ impl MigrationTrait for Migration {
                     .table(User::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(User::Id)
-                            .big_integer()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
-                    )
-                    .col(
                         ColumnDef::new(User::UserId)
                             .string()
                             .unique_key()
-                            .not_null(),
+                            .not_null()
+                            .primary_key(),
                     )
                     .col(ColumnDef::new(User::Name).string().not_null())
                     .col(ColumnDef::new(User::QiitaId).string())
@@ -44,7 +38,6 @@ impl MigrationTrait for Migration {
 #[derive(DeriveIden)]
 enum User {
     Table,
-    Id,
     UserId,
     Name,
     Password,

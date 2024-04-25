@@ -1,3 +1,4 @@
+use super::m20240401_080245_blog::Post;
 use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -20,7 +21,12 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Tag::Name).string().not_null())
                     .col(ColumnDef::new(Tag::BlogId).big_integer().not_null())
-                    .col(ColumnDef::new(Tag::UserId).string().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk")
+                            .from(Tag::Table, Tag::BlogId)
+                            .to(Post::Table, Post::Id),
+                    )
                     .to_owned(),
             )
             .await
@@ -38,6 +44,5 @@ enum Tag {
     Table,
     Id,
     BlogId,
-    UserId,
     Name,
 }

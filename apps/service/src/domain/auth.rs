@@ -29,7 +29,7 @@ impl AuthDomain {
 
     fn generate_claims(
         &self,
-        user_id: i64,
+        user_id: &String,
     ) -> Result<BTreeMap<&'static str, String>, InfrastructureError> {
         let mut claims: BTreeMap<&str, String> = BTreeMap::new();
 
@@ -45,7 +45,7 @@ impl AuthDomain {
         Ok(claims)
     }
 
-    pub fn generate_token(&self, user_id: i64) -> Result<String, InfrastructureError> {
+    pub fn generate_token(&self, user_id: &String) -> Result<String, InfrastructureError> {
         let app_key: String = config::CONFIG.app_key.clone();
         let key: Hmac<Sha256> =
             Hmac::new_from_slice(app_key.as_bytes()).expect("failed to create key from app key");
@@ -64,10 +64,10 @@ impl AuthDomain {
             .map_err(|_| Status::failed_precondition("failed to verify"))
     }
 
-    pub fn auth<T>(&self, request: Request<T>) -> Result<i64, Status> {
+    pub fn auth<T>(&self, request: Request<T>) -> Result<String, Status> {
         let token = self.get_token(request.metadata())?;
         let claim = self.verify_token(&token)?;
-        let user_id = claim["sub"].parse::<i64>().map_err(|_| {
+        let user_id = claim["sub"].parse::<String>().map_err(|_| {
             Status::unauthenticated("Invalid access token: user_id is not found in claim")
         })?;
         Ok(user_id)

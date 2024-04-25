@@ -1,7 +1,8 @@
 use crate::team_blog::blog_service_server::BlogServiceServer;
 use crate::team_blog::{
-    Blog, Blogs, CreateUserRequest, GetBlogByIdRequest, GetBlogByUserRequest, GetMembersResponse,
-    GetSummaryRequest, GetSummaryResponse, LoginRequest, PostBlog, Token,
+    CreateUserRequest, CreateUserResponse, GetBlogByIdRequest, GetBlogByIdResponse,
+    GetBlogByUsersRequest, GetBlogByUsersResponse, GetMembersResponse, GetSummaryRequest,
+    GetSummaryResponse, LoginRequest, LoginResponse, PostBlog,
 };
 use crate::{team_blog::blog_service_server, usecase::usecase::UsecaseImpl};
 use chatgpt::types::ResponseChunk;
@@ -55,9 +56,9 @@ impl blog_service_server::BlogService for BlogServer {
     async fn create_user(
         &self,
         request: Request<CreateUserRequest>,
-    ) -> Result<Response<Token>, Status> {
+    ) -> Result<Response<CreateUserResponse>, Status> {
         let token = self.usecase.create_user(request.into_inner()).await?;
-        Ok(Response::new(Token { token }))
+        Ok(Response::new(CreateUserResponse::from(token)))
     }
 
     async fn delete_user(&self, request: Request<()>) -> Result<Response<()>, Status> {
@@ -65,9 +66,12 @@ impl blog_service_server::BlogService for BlogServer {
         Ok(Response::new(()))
     }
 
-    async fn login(&self, request: Request<LoginRequest>) -> Result<Response<Token>, Status> {
+    async fn login(
+        &self,
+        request: Request<LoginRequest>,
+    ) -> Result<Response<LoginResponse>, Status> {
         let token = self.usecase.login(request.into_inner()).await?;
-        Ok(Response::new(token))
+        Ok(Response::new(LoginResponse::from(token)))
     }
 
     async fn get_members(
@@ -78,25 +82,28 @@ impl blog_service_server::BlogService for BlogServer {
         Ok(Response::new(GetMembersResponse { members }))
     }
 
-    async fn get_blog_by_user(
+    async fn get_blog_by_users(
         &self,
-        request: Request<GetBlogByUserRequest>,
-    ) -> Result<Response<Blogs>, Status> {
+        request: Request<GetBlogByUsersRequest>,
+    ) -> Result<Response<GetBlogByUsersResponse>, Status> {
         let req = request.into_inner();
-        let blogs = self
+        let (blogs, total_count) = self
             .usecase
             .get_blog_by_user(req.ids, req.pagination.unwrap())
             .await?;
-        Ok(Response::new(blogs))
+        Ok(Response::new(GetBlogByUsersResponse::from((
+            blogs,
+            total_count,
+        ))))
     }
 
     async fn get_blog_by_id(
         &self,
         request: Request<GetBlogByIdRequest>,
-    ) -> Result<Response<Blog>, Status> {
+    ) -> Result<Response<GetBlogByIdResponse>, Status> {
         let req = request.into_inner();
-        let blogs = self.usecase.get_blog_by_id(req.id).await?;
-        Ok(Response::new(blogs))
+        let blog = self.usecase.get_blog_by_id(req.id).await?;
+        Ok(Response::new(GetBlogByIdResponse::from(blog)))
     }
 
     async fn post_blog(&self, request: Request<PostBlog>) -> Result<Response<()>, Status> {
