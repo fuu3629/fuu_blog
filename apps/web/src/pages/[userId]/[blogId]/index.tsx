@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { CokiesContext } from "@/pages/api/CokiesContext";
 import { Blog } from "@/__generated__/services/blog_pb";
 import { Button } from "@chakra-ui/react";
+import { Preview } from "@/components/Markdown/Preview/Preview";
 
 export default function Index() {
   const token = useContext(CokiesContext);
@@ -24,7 +25,6 @@ export default function Index() {
       blogId: BigInt(blogId as string),
     });
     for await (const delta of stream) {
-      console.log(delta.summaryText);
       setSummary((prev) => prev + delta.summaryText);
     }
   };
@@ -34,7 +34,7 @@ export default function Index() {
       <div>{summary}</div>
       <Button onClick={onClickSummary}>aaa</Button>
       <h1>{blog?.title}</h1>
-      <div>{blog?.body}</div>
+      <Preview doc={blog?.body} />
     </div>
   );
 }

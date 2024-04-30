@@ -8,7 +8,6 @@ use sea_orm::{
     ActiveValue, ColumnTrait, EntityTrait, ModelTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QuerySelect,
 };
-// use crate::domain::entity::
 
 #[derive(Default)]
 pub struct PostRepository {
@@ -55,13 +54,7 @@ impl PostRepository {
         };
 
         let ordered_blogs_with_limit = order_blogs.limit(limit);
-        let blogs = ordered_blogs_with_limit
-            // .find_with_related(tag::Entity)
-            .all(&db)
-            .await?;
-        // let tmp = blogs
-        //     .into_iter()
-        //     .map(|blog| (blog.clone(), blog.find_related(tag::Entity).all(&db)));
+        let blogs = ordered_blogs_with_limit.all(&db).await?;
         let tmp2 = stream::iter(blogs)
             .then(|blog| {
                 let db_ = &db;

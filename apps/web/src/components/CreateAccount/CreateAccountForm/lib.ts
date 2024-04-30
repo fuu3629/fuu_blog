@@ -5,7 +5,6 @@ import type { PartialMessage } from "@bufbuild/protobuf";
 import { Dispatch, SetStateAction } from "react";
 import { setCookie } from "nookies";
 import { clientProvider } from "@/pages/api/ClientProvider";
-import { BlogService } from "@/__generated__/services/blog_connectweb";
 import { CreateUserRequest } from "@/__generated__/services/blog_pb";
 
 export const createAccountFormSchema = z.object({
